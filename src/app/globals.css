@@ -60,8 +60,11 @@
 }
 
 @layer utilities {
-	.container-section {
-		@apply max-w-7xl px-4 mx-auto self-center;
+	.template-container {
+		@apply max-w-[85rem] mx-auto px-4 md:px-8 xl:px-12 2xl:px-0;
+	}
+	.section-container {
+		@apply max-w-[70rem] mx-auto px-4 md:px-8 xl:px-12 2xl:px-0;
 	}
 }
 
