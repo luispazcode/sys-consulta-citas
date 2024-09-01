@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import { Inter as FontSans } from "next/font/google";
 import "./globals.css";
 import { cn } from "@/lib/utils";
-import { Footer, Header } from "@/components/global";
 
 const fontSans = FontSans({
 	subsets: ["latin"],
@@ -23,15 +22,11 @@ export default function RootLayout({
 		<html lang='en'>
 			<body
 				className={cn(
-					"bg-background font-sans antialiased container mx-auto",
+					"bg-background font-sans antialiased min-[2000px]:container mx-auto",
 					fontSans.variable
 				)}
 			>
-				<div className='grid grid-rows-[auto_1fr_auto] min-h-dvh'>
-					<Header />
-					{children}
-					<Footer />
-				</div>
+				{children}
 			</body>
 		</html>
 	);
