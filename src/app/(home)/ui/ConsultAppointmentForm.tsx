@@ -16,8 +16,9 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 
 const consultAppointmentSchema = z.object({
-	idPatient: z.string().refine((value) => /^\d{8}$/.test(value), {
-		message: "El número de identificación debe tener exactamente 8 dígitos",
+	idPatient: z.string().refine((value) => /^\d{8}$|^\d{10}$/.test(value), {
+		message:
+			"El número de identificación debe tener exactamente 8 o 10 dígitos",
 	}),
 });
 
