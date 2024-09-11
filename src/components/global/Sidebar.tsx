@@ -11,7 +11,7 @@ const routes = [
 		slug: "appointments",
 	},
 	{
-		name: "Departamentos",
+		name: "Especialidades",
 		icon: BuildingIcon,
 		slug: "specialties",
 	},
@@ -19,6 +19,11 @@ const routes = [
 		name: "Doctores",
 		icon: UserIcon,
 		slug: "doctors",
+	},
+	{
+		name: "Pacientes",
+		icon: UserIcon,
+		slug: "patients",
 	},
 ];
 
