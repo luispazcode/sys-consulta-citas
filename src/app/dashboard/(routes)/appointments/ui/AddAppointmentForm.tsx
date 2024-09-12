@@ -1,7 +1,6 @@
 "use client";
 
 import { Input } from "@/components/ui/input";
-import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
 import { useForm } from "react-hook-form";
 import {
@@ -21,13 +20,22 @@ import {
 } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
-import { CalendarIcon } from "lucide-react";
+import { CalendarIcon, Check, ChevronsUpDown } from "lucide-react";
 import { Calendar } from "@/components/ui/calendar";
 import { useState } from "react";
+import {
+	Command,
+	CommandEmpty,
+	CommandGroup,
+	CommandInput,
+	CommandItem,
+	CommandList,
+} from "@/components/ui/command";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 
 const addAppointmentSchema = z.object({
-	patient: z.string().min(3, {
-		message: "El nombre del paciente debe tener al menos 3 caracteres",
+	patient: z.string({
+		required_error: "El nombre del paciente es requerido",
 	}),
 	identityDocument: z
 		.string()
@@ -47,9 +55,9 @@ const addAppointmentSchema = z.object({
 	shift: z
 		.string()
 		.min(3, { message: "El turno debe tener al menos 3 caracteres" }),
-	service: z
-		.string()
-		.min(3, { message: "El servicio debe tener al menos 3 caracteres" }),
+	service: z.string({
+		required_error: "El servicio es requerido",
+	}),
 	scheduledDate: z.date({
 		required_error: "La fecha de programación es requerida",
 	}),
@@ -68,20 +76,122 @@ const addAppointmentSchema = z.object({
 			message: "La hora debe estar entre las 8:00 AM y las 12:00 PM.",
 		}
 	),
-	accountNumber: z.string().min(3, {
-		message: "El número de cuenta debe tener al menos 3 caracteres",
+	officeNumber: z.string().optional(),
+	doctor: z.string({
+		required_error: "El nombre del Doctor es requerido",
 	}),
-	doctor: z.string().min(3, {
-		message: "El nombre del doctor debe tener al menos 3 caracteres",
-	}),
-	sis: z.boolean().default(false).optional(),
-	interconsultation: z.boolean().optional(),
+	insuranceType: z.enum(["sis", "particular", "none"]),
+	paymentCode: z
+		.string()
+		.optional()
+		.refine(
+			(value) => {
+				if (value === "particular") {
+					return value && value.length > 0;
+				}
+				return true;
+			},
+			{ message: "Código de pago es requerido para la opción Particular" }
+		),
 });
 
 type AddAppointmentFormValues = z.infer<typeof addAppointmentSchema>;
 
+const listPatients = [
+	{
+		idPatient: "75329228",
+		name: "Luis Paz",
+		email: "correo01@correo.com",
+		phone: "987654321",
+		medicalHistory: "123456",
+	},
+	{
+		idPatient: "75329229",
+		name: "Juan Perez",
+		email: "correo02@correo.com",
+		phone: "987654322",
+		medicalHistory: "123457",
+	},
+	{
+		idPatient: "75329230",
+		name: "Maria Lopez",
+		email: "correo03@correo.com",
+		phone: "987654323",
+		medicalHistory: "123458",
+	},
+	{
+		idPatient: "75329231",
+		name: "Pedro Ramirez",
+		email: "correo04@correo.com",
+		phone: "987654324",
+		medicalHistory: "123459",
+	},
+	{
+		idPatient: "75329232",
+		name: "Ana Garcia",
+		email: "correo07@correo.com",
+		phone: "987654325",
+		medicalHistory: "123460",
+	},
+	{
+		idPatient: "75329233",
+		name: "Carlos Sanchez",
+		email: "correo04@correo.com",
+		phone: "987654326",
+		medicalHistory: "123461",
+	},
+	{
+		idPatient: "75329234",
+		name: "Jose Rodriguez",
+		email: "correo04@correo.com",
+		phone: "987654327",
+		medicalHistory: "123462",
+	},
+	{
+		idPatient: "75329235",
+		name: "Rosa Flores",
+		email: "correo04@correo.com",
+		phone: "987654328",
+		medicalHistory: "123463",
+	},
+];
+
+const specialities = [
+	{ id: 1, name: "Cardiología" },
+	{ id: 2, name: "Dermatología" },
+	{ id: 3, name: "Endocrinología" },
+	{ id: 4, name: "Gastroenterología" },
+	{ id: 5, name: "Ginecología" },
+	{ id: 6, name: "Hematología" },
+	{ id: 7, name: "Infectología" },
+	{ id: 8, name: "Medicina Interna" },
+	{ id: 9, name: "Nefrología" },
+	{ id: 10, name: "Neumología" },
+	{ id: 11, name: "Neurología" },
+	{ id: 12, name: "Oftalmología" },
+	{ id: 13, name: "Oncología" },
+	{ id: 14, name: "Otorrinolaringología" },
+	{ id: 15, name: "Pediatría" },
+	{ id: 16, name: "Psiquiatría" },
+	{ id: 17, name: "Reumatología" },
+	{ id: 18, name: "Traumatología" },
+	{ id: 19, name: "Urología" },
+];
+
+const doctors = [
+	{ id: "76565242", name: "Dr. Juan Perez", specialty: "Cardiología" },
+	{ id: "76565243", name: "Dr. Maria Lopez", specialty: "Dermatología" },
+	{ id: "76565244", name: "Dr. Pedro Ramirez", specialty: "Endocrinología" },
+	{ id: "76565245", name: "Dr. Ana Garcia", specialty: "Gastroenterología" },
+	{ id: "76565246", name: "Dr. Carlos Sanchez", specialty: "Ginecología" },
+	{ id: "76565247", name: "Dr. Jose Rodriguez", specialty: "Hematología" },
+	{ id: "76565248", name: "Dr. Rosa Flores", specialty: "Infectología" },
+	{ id: "76565249", name: "Dr. Luis Paz", specialty: "Medicina Interna" },
+];
+
 export const AddAppointmentForm = () => {
 	const [isCalendarOpen, setIsCalendarOpen] = useState<boolean>(false);
+	const [showPaymentCode, setShowPaymentCode] = useState(false);
 	const form = useForm<AddAppointmentFormValues>({
 		resolver: zodResolver(addAppointmentSchema),
 		defaultValues: {
@@ -95,10 +205,10 @@ export const AddAppointmentForm = () => {
 			service: "",
 			scheduledDate: new Date(),
 			scheduledTime: "",
-			accountNumber: "",
+			officeNumber: "",
 			doctor: "",
-			sis: false,
-			interconsultation: false,
+			insuranceType: "none",
+			paymentCode: "",
 		},
 	});
 	const onSubmit = (data: AddAppointmentFormValues) => {
@@ -115,9 +225,70 @@ export const AddAppointmentForm = () => {
 							control={form.control}
 							name='patient'
 							render={({ field }) => (
-								<FormItem>
-									<FormLabel>Nombres completos</FormLabel>
-									<Input {...field} type='text' />
+								<FormItem className='flex flex-col'>
+									<FormLabel>Nombres completos del paciente</FormLabel>
+									<Popover>
+										<PopoverTrigger asChild>
+											<FormControl>
+												<Button
+													variant='outline'
+													role='combobox'
+													className={cn(
+														"w-full justify-between",
+														!field.value && "text-muted-foreground"
+													)}
+												>
+													{field.value
+														? listPatients.find(
+																(patient) => patient.idPatient === field.value
+														  )?.name
+														: "Selecciona un paciente"}
+													<ChevronsUpDown className='ml-2 h-4 w-4 shrink-0 opacity-50' />
+												</Button>
+											</FormControl>
+										</PopoverTrigger>
+										<PopoverContent className='w-full p-0'>
+											<Command>
+												<CommandInput placeholder='Buscar paciente...' />
+												<CommandList>
+													<CommandEmpty>Paciente no encontrado.</CommandEmpty>
+													<CommandGroup>
+														{listPatients.map((patient) => (
+															<CommandItem
+																key={patient.idPatient}
+																value={patient.idPatient}
+																onSelect={() => {
+																	form.setValue("patient", patient.idPatient);
+																	form.setValue(
+																		"identityDocument",
+																		patient.idPatient
+																	);
+																	form.setValue("email", patient.email);
+																	form.setValue("phone", patient.phone);
+																	form.setValue(
+																		"medicalHistory",
+																		patient.medicalHistory
+																	);
+																	// TODO: Set the rest of the patient data in their fields
+																}}
+															>
+																<Check
+																	className={cn(
+																		"mr-2 h-4 w-4",
+																		patient.name === field.value
+																			? "opacity-100"
+																			: "opacity-0"
+																	)}
+																/>
+																{patient.idPatient} - {patient.name}
+															</CommandItem>
+														))}
+													</CommandGroup>
+												</CommandList>
+											</Command>
+										</PopoverContent>
+									</Popover>
+									<FormMessage />
 								</FormItem>
 							)}
 						/>
@@ -131,6 +302,7 @@ export const AddAppointmentForm = () => {
 								<FormItem>
 									<FormLabel>Nro. Documento de Identidad</FormLabel>
 									<Input {...field} type='text' />
+									<FormMessage />
 								</FormItem>
 							)}
 						/>
@@ -144,6 +316,7 @@ export const AddAppointmentForm = () => {
 								<FormItem>
 									<FormLabel>Email</FormLabel>
 									<Input {...field} type='email' />
+									<FormMessage />
 								</FormItem>
 							)}
 						/>
@@ -170,6 +343,7 @@ export const AddAppointmentForm = () => {
 								<FormItem>
 									<FormLabel>Nro. Historia Clínica</FormLabel>
 									<Input {...field} type='text' />
+									<FormMessage />
 								</FormItem>
 							)}
 						/>
@@ -243,7 +417,7 @@ export const AddAppointmentForm = () => {
 												type='time'
 												placeholder='Selecciona la hora'
 												min='08:00'
-												max='12:00'
+												max='18:00'
 												step='300'
 												className='justify-start'
 												{...field}
@@ -256,15 +430,67 @@ export const AddAppointmentForm = () => {
 						/>
 					</div>
 					{/* Servicio / Especialidad */}
-					<div className='space-y-2'>
-						{/* TODO: Implement a select component (get the data from the API) */}
+					<div className='space-y-2 flex flex-col justify-end'>
 						<FormField
 							control={form.control}
 							name='service'
 							render={({ field }) => (
-								<FormItem>
-									<FormLabel>Servicio</FormLabel>
-									<Input {...field} type='text' />
+								<FormItem className='flex flex-col'>
+									<FormLabel>Servicio (Especialidad)</FormLabel>
+									<Popover>
+										<PopoverTrigger asChild>
+											<FormControl>
+												<Button
+													variant='outline'
+													role='combobox'
+													className={cn(
+														"w-full justify-between",
+														!field.value && "text-muted-foreground"
+													)}
+												>
+													{field.value
+														? specialities.find(
+																(specialty) => specialty.name === field.value
+														  )?.name
+														: "Selecciona una especialidad"}
+													<ChevronsUpDown className='ml-2 h-4 w-4 shrink-0 opacity-50' />
+												</Button>
+											</FormControl>
+										</PopoverTrigger>
+										<PopoverContent className='w-full p-0'>
+											<Command>
+												<CommandInput placeholder='Seleccionar especialidad...' />
+												<CommandList>
+													<CommandEmpty>
+														Especialidad no encontrado.
+													</CommandEmpty>
+													<CommandGroup>
+														{specialities.map((specialty) => (
+															<CommandItem
+																key={specialty.id}
+																value={specialty.name}
+																onSelect={() => {
+																	form.setValue("service", specialty.name);
+																	// TODO: Set the rest of the specialty data in their fields
+																}}
+															>
+																<Check
+																	className={cn(
+																		"mr-2 h-4 w-4",
+																		specialty.name === field.value
+																			? "opacity-100"
+																			: "opacity-0"
+																	)}
+																/>
+																{specialty.name}
+															</CommandItem>
+														))}
+													</CommandGroup>
+												</CommandList>
+											</Command>
+										</PopoverContent>
+									</Popover>
+									<FormMessage />
 								</FormItem>
 							)}
 						/>
@@ -278,6 +504,7 @@ export const AddAppointmentForm = () => {
 								<FormItem>
 									<FormLabel>Cupo</FormLabel>
 									<Input {...field} type='number' />
+									<FormMessage />
 								</FormItem>
 							)}
 						/>
@@ -291,70 +518,160 @@ export const AddAppointmentForm = () => {
 								<FormItem>
 									<FormLabel>Turno</FormLabel>
 									<Input {...field} type='text' />
+									<FormMessage />
 								</FormItem>
 							)}
 						/>
 					</div>
-					{/* Número de cuenta */}
+					{/* Número de consultorio */}
 					<div className='space-y-2'>
 						<FormField
 							control={form.control}
-							name='accountNumber'
+							name='officeNumber'
 							render={({ field }) => (
 								<FormItem>
-									<FormLabel>Nro. Cuenta</FormLabel>
+									<FormLabel>Nro. de consultorio</FormLabel>
 									<FormControl>
 										<Input {...field} type='text' />
 									</FormControl>
+									<FormMessage />
 								</FormItem>
 							)}
 						/>
 					</div>
-					{/* SIS & Interconsulta */}
-					<div className='flex items-center gap-6 mt-2 col-span-2 justify-center'>
+					{/* Modality: SIS, Particular or None */}
+					<div className='space-y-2 col-span-2 grid grid-cols-2'>
 						<FormField
 							control={form.control}
-							name='sis'
+							name='insuranceType'
 							render={({ field }) => (
-								<FormItem className='flex flex-row items-center space-x-2 space-y-0'>
-									<FormLabel>SIS</FormLabel>
+								<FormItem className='space-y-3'>
+									<FormLabel>Tipo de seguro</FormLabel>
 									<FormControl>
-										<Checkbox
-											checked={field.value}
-											onCheckedChange={field.onChange}
-										/>
+										<RadioGroup
+											onValueChange={(value) => {
+												field.onChange(value);
+												setShowPaymentCode(value === "particular");
+											}}
+											defaultValue={field.value}
+											className='flex flex-col space-y-1'
+										>
+											<FormItem className='flex items-center space-x-3 space-y-0'>
+												<FormControl>
+													<RadioGroupItem value='sis' />
+												</FormControl>
+												<FormLabel>SIS</FormLabel>
+											</FormItem>
+											<FormItem className='flex items-center space-x-3 space-y-0'>
+												<FormControl>
+													<RadioGroupItem value='particular' />
+												</FormControl>
+												<FormLabel>Particular</FormLabel>
+											</FormItem>
+											<FormItem className='flex items-center space-x-3 space-y-0'>
+												<FormControl>
+													<RadioGroupItem value='none' />
+												</FormControl>
+												<FormLabel>Ninguno</FormLabel>
+											</FormItem>
+										</RadioGroup>
 									</FormControl>
+									<FormMessage />
 								</FormItem>
 							)}
 						/>
-						<FormField
-							control={form.control}
-							name='interconsultation'
-							render={({ field }) => (
-								<FormItem className='flex flex-row items-center space-x-2 space-y-0'>
-									<FormLabel>Interconsulta</FormLabel>
-									<FormControl>
-										<Checkbox
-											checked={field.value}
-											onCheckedChange={field.onChange}
-										/>
-									</FormControl>
-								</FormItem>
-							)}
-						/>
+						{showPaymentCode && (
+							<FormField
+								control={form.control}
+								name='paymentCode'
+								render={({ field }) => (
+									<FormItem>
+										<FormLabel>Código de pago</FormLabel>
+										<FormControl>
+											<Input
+												placeholder='Ingrese el código de pago'
+												{...field}
+											/>
+										</FormControl>
+										<FormMessage />
+									</FormItem>
+								)}
+							/>
+						)}
 					</div>
 				</fieldset>
 
 				<fieldset>
 					<legend className='text-lg font-semibold'>Datos del Doctor</legend>
-					<div className='space-y-2'>
+					<div className='space-y-2 col-span-2'>
 						<FormField
 							control={form.control}
 							name='doctor'
 							render={({ field }) => (
-								<FormItem>
-									<FormLabel>Nombres completos del Doctor</FormLabel>
-									<Input {...field} type='text' />
+								<FormItem className='flex flex-col'>
+									<FormLabel>Nombres completos del doctor</FormLabel>
+									<Popover>
+										<PopoverTrigger asChild>
+											<FormControl>
+												<Button
+													variant='outline'
+													role='combobox'
+													className={cn(
+														"w-full justify-between",
+														!field.value && "text-muted-foreground"
+													)}
+												>
+													{field.value
+														? doctors
+																.filter(
+																	(doctor) =>
+																		doctor.specialty ===
+																		form.getValues("service")
+																)
+																.find((doctor) => doctor.name === field.value)
+																?.name
+														: "Selecciona un doctor"}
+													<ChevronsUpDown className='ml-2 h-4 w-4 shrink-0 opacity-50' />
+												</Button>
+											</FormControl>
+										</PopoverTrigger>
+										<PopoverContent className='w-full p-0'>
+											<Command>
+												<CommandInput placeholder='Buscar doctor...' />
+												<CommandList>
+													<CommandEmpty>Doctor no encontrado.</CommandEmpty>
+													<CommandGroup>
+														{doctors
+															.filter(
+																(doctor) =>
+																	doctor.specialty === form.getValues("service")
+															)
+															.map((doctor) => (
+																<CommandItem
+																	key={doctor.id}
+																	value={doctor.id}
+																	onSelect={() => {
+																		form.setValue("doctor", doctor.name);
+																		// TODO: Set the rest of the patient data in their fields
+																	}}
+																>
+																	<Check
+																		className={cn(
+																			"mr-2 h-4 w-4",
+																			doctor.name === field.value
+																				? "opacity-100"
+																				: "opacity-0"
+																		)}
+																	/>
+																	{doctor.id} - {doctor.name}
+																</CommandItem>
+															))}
+													</CommandGroup>
+												</CommandList>
+											</Command>
+										</PopoverContent>
+									</Popover>
+									<FormMessage />
 								</FormItem>
 							)}
 						/>
