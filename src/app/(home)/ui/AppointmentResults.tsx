@@ -1,10 +1,5 @@
 import { Button } from "@/components/ui/button";
-import {
-	BuildingIcon,
-	CalendarIcon,
-	FileTextIcon,
-	UserIcon,
-} from "lucide-react";
+import { BuildingIcon, CalendarIcon, UserIcon } from "lucide-react";
 import Link from "next/link";
 
 export const AppointmentResults = () => {
@@ -13,12 +8,12 @@ export const AppointmentResults = () => {
 			<div className='bg-gradient-to-r from-teal-600 to-teal-700 p-6'>
 				<h2 className='text-2xl font-bold text-white'>Tus Citas</h2>
 			</div>
-			<div className='p-6'>
+			<div className='p-6 appointment-card'>
 				<div className='mb-8 last:mb-0 bg-gray-50 dark:bg-gray-700 rounded-lg p-6 shadow-md'>
 					<div className='flex items-center mb-4'>
 						<CalendarIcon className='w-6 h-6 text-teal-600 dark:text-teal-400 mr-2' />
 						<span className='text-lg font-semibold text-gray-800 dark:text-white'>
-							2023-07-15 a las 10:30
+							Programada para: 2023-07-15 a las 10:30
 						</span>
 					</div>
 					<div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
@@ -31,19 +26,15 @@ export const AppointmentResults = () => {
 						<div className='flex items-center'>
 							<BuildingIcon className='w-5 h-5 text-gray-600 dark:text-gray-400 mr-2' />
 							<span className='text-gray-700 dark:text-gray-300'>
-								Departamento: Cardiología
+								Especialidad: Cardiología
 							</span>
 						</div>
-					</div>
-					<div className='mt-4'>
-						<div className='flex items-start'>
-							<FileTextIcon className='w-5 h-5 text-gray-600 dark:text-gray-400 mr-2 mt-1' />
-							<span className='text-gray-700 dark:text-gray-300'>
-								Motivo: Chequeo anual del corazón y revisión de la presión
-								arterial.
-							</span>
+						<div className='flex items-center'>
+							<BuildingIcon className='w-5 h-5 text-gray-600 dark:text-gray-400 mr-2' />
+							<span className='text-gray-700 dark:text-gray-300'>Cupo: 15</span>
 						</div>
 					</div>
+
 					<div className='mt-6'>
 						<Button
 							variant='outline'
