@@ -12,15 +12,22 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { createSpecialty } from "@/actions";
+import { useRouter } from "next/navigation";
+import { useToast } from "@/hooks/use-toast";
+import { useUIStore } from "@/store";
 
 const addSpecialtyForm = z.object({
 	name: z.string().min(3, "El nombre debe tener al menos 3 caracteres"),
 	description: z.string().optional(),
 });
 
-type AddSpecialtyFormValues = z.infer<typeof addSpecialtyForm>;
+export type AddSpecialtyFormValues = z.infer<typeof addSpecialtyForm>;
 
 export const AddSpecialtyForm = () => {
+	const { toast } = useToast();
+	const closeDialog = useUIStore((state) => state.closeDialog);
+	const router = useRouter();
 	const form = useForm<AddSpecialtyFormValues>({
 		resolver: zodResolver(addSpecialtyForm),
 		defaultValues: {
@@ -30,7 +37,23 @@ export const AddSpecialtyForm = () => {
 	});
 
 	const onSubmit = async (data: AddSpecialtyFormValues) => {
-		console.log({ data });
+		// console.log({ data });
+		const response = await createSpecialty(data);
+		if (!response.ok) {
+			toast({
+				variant: "destructive",
+				title: "Error",
+				description: response.message,
+			});
+		}
+		toast({
+			title: "Especialidad creada",
+			description: "La especialidad ha sido creada correctamente",
+			variant: "default",
+		});
+		form.reset();
+		closeDialog();
+		router.refresh();
 	};
 
 	return (
@@ -65,7 +88,7 @@ export const AddSpecialtyForm = () => {
 					type='submit'
 					className='w-full bg-teal-600 hover:bg-teal-700 text-white'
 				>
-					Registrar Especialidad
+					Registrar
 				</Button>
 			</form>
 		</Form>
