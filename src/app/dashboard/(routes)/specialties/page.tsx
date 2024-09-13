@@ -12,26 +12,10 @@ import {
 } from "@/components/ui/table";
 import { PlusIcon, SearchIcon } from "lucide-react";
 import { DialogAddSpecialty } from "./ui/DialogAddSpecialty";
+import { getSpecialties } from "@/actions";
 
-const departments = [
-	{
-		id: 1,
-		name: "Cardiología",
-		description: "Especialidad en enfermedades del corazón",
-	},
-	{
-		id: 2,
-		name: "Neurología",
-		description: "Especialidad en enfermedades del sistema nervioso",
-	},
-	{
-		id: 3,
-		name: "Pediatría",
-		description: "Especialidad en atención a niños y adolescentes",
-	},
-];
-
-export default function SpecialtiesPage() {
+export default async function SpecialtiesPage() {
+	const { ok, data: specialties, message } = await getSpecialties();
 	return (
 		<section>
 			<Card className='w-full'>
@@ -63,24 +47,28 @@ export default function SpecialtiesPage() {
 								</TableRow>
 							</TableHeader>
 							<TableBody>
-								{departments.map((department) => (
-									<TableRow key={department.id}>
-										<TableCell>{department.name}</TableCell>
-										<TableCell>{department.description}</TableCell>
-										<TableCell>
-											<Button variant='outline' size='sm' className='mr-2'>
-												Editar
-											</Button>
-											<Button
-												variant='outline'
-												size='sm'
-												className='bg-red-100 text-red-600 hover:bg-red-200'
-											>
-												Eliminar
-											</Button>
-										</TableCell>
-									</TableRow>
-								))}
+								{!specialties && !ok ? (
+									<p>{message}</p>
+								) : (
+									specialties.map((specialty) => (
+										<TableRow key={specialty.id}>
+											<TableCell>{specialty.name}</TableCell>
+											<TableCell>{specialty.description}</TableCell>
+											<TableCell>
+												<Button variant='outline' size='sm' className='mr-2'>
+													Editar
+												</Button>
+												<Button
+													variant='outline'
+													size='sm'
+													className='bg-red-100 text-red-600 hover:bg-red-200'
+												>
+													Eliminar
+												</Button>
+											</TableCell>
+										</TableRow>
+									))
+								)}
 							</TableBody>
 						</Table>
 					</div>
