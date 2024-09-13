@@ -1,4 +1,5 @@
 import { Sidebar } from "@/components/global";
+import { Toaster } from "@/components/ui/toaster";
 
 export default function DashboardLayout({
 	children,
@@ -13,6 +14,7 @@ export default function DashboardLayout({
 			<main className='flex-1 p-8'>
 				<div>{children}</div>
 			</main>
+			<Toaster />
 		</div>
 	);
 }
