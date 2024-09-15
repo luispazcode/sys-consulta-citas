@@ -10,43 +10,20 @@ import {
 	TableHeader,
 	TableRow,
 } from "@/components/ui/table";
-import { PlusIcon, SearchIcon } from "lucide-react";
+import { SearchIcon } from "lucide-react";
 import { DialogAddDoctor } from "./ui/DialogAddDoctor";
+import { getDoctors, getSpecialties } from "@/actions";
 
-const doctors = [
-	{
-		id: 1,
-		name: "Dr. Juan Pérez",
-		speciality: "Cardiología",
-		email: "juan.perez@hospital.com",
-		phone: "123-456-7890",
-		department: "Cardiología",
-	},
-	{
-		id: 2,
-		name: "Dra. María Rodríguez",
-		speciality: "Neurología",
-		email: "maria.roriguez@hospital.com",
-		phone: "123-456-7890",
-		department: "Neurología",
-	},
-	{
-		id: 3,
-		name: "Dr. Pedro Gómez",
-		speciality: "Pediatría",
-		email: "pedro.gomez@hospital.com",
-		phone: "123-456-7890",
-		department: "Pediatría",
-	},
-];
-
-export default function DoctorsPage() {
+export default async function DoctorsPage() {
+	const { ok, data } = await getSpecialties();
+	const specialties = !ok ? [] : data;
+	const { ok: resp, data: doctors, message } = await getDoctors();
 	return (
 		<section>
 			<Card className='w-full'>
 				<CardHeader className='flex flex-row items-center justify-between'>
 					<CardTitle className='text-2xl font-bold'>Doctores</CardTitle>
-					<DialogAddDoctor />
+					<DialogAddDoctor specialties={specialties} />
 				</CardHeader>
 				<CardContent>
 					<div className='mb-4'>
@@ -70,32 +47,34 @@ export default function DoctorsPage() {
 									<TableHead>Especialidad</TableHead>
 									<TableHead>Email</TableHead>
 									<TableHead>Teléfono</TableHead>
-									<TableHead>Departamento</TableHead>
 									<TableHead>Acciones</TableHead>
 								</TableRow>
 							</TableHeader>
 							<TableBody>
-								{doctors.map((doctor) => (
-									<TableRow key={doctor.id}>
-										<TableCell>{doctor.name}</TableCell>
-										<TableCell>{doctor.speciality}</TableCell>
-										<TableCell>{doctor.email}</TableCell>
-										<TableCell>{doctor.phone}</TableCell>
-										<TableCell>{doctor.department}</TableCell>
-										<TableCell>
-											<Button variant='outline' size='sm' className='mr-2'>
-												Editar
-											</Button>
-											<Button
-												variant='outline'
-												size='sm'
-												className='bg-red-100 text-red-600 hover:bg-red-200'
-											>
-												Eliminar
-											</Button>
-										</TableCell>
-									</TableRow>
-								))}
+								{!resp ? (
+									<p>{message}</p>
+								) : (
+									doctors.map((doctor) => (
+										<TableRow key={doctor.id}>
+											<TableCell>{doctor.fullName}</TableCell>
+											<TableCell>{doctor.specialty.name}</TableCell>
+											<TableCell>{doctor.email}</TableCell>
+											<TableCell>{doctor.phone}</TableCell>
+											<TableCell>
+												<Button variant='outline' size='sm' className='mr-2'>
+													Editar
+												</Button>
+												<Button
+													variant='outline'
+													size='sm'
+													className='bg-red-100 text-red-600 hover:bg-red-200'
+												>
+													Eliminar
+												</Button>
+											</TableCell>
+										</TableRow>
+									))
+								)}
 							</TableBody>
 						</Table>
 					</div>
