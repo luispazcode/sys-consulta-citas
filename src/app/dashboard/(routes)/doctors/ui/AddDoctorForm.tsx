@@ -1,5 +1,6 @@
 "use client";
 
+import { createDoctor } from "@/actions";
 import { Button } from "@/components/ui/button";
 import {
 	Command,
@@ -23,54 +24,47 @@ import {
 	PopoverContent,
 	PopoverTrigger,
 } from "@/components/ui/popover";
+import { useToast } from "@/hooks/use-toast";
+import { Specialty } from "@/interfaces";
 import { cn } from "@/lib/utils";
+import { useUIStore } from "@/store";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Check, ChevronsUpDown } from "lucide-react";
+import { useRouter } from "next/navigation";
 import React from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
 const addDoctorForm = z.object({
-	idDoctor: z.string().refine((value) => /^\d{8}$/.test(value), {
-		message: "El número de DNI debe tener exactamente 8 dígitos",
-	}),
+	idDoctor: z
+		.string({ required_error: "El número de DNI del doctor es obligatorio" })
+		.refine((value) => /^\d{8}$/.test(value), {
+			message: "El número de DNI debe tener exactamente 8 dígitos",
+		}),
 	name: z.string().min(3, "El nombre debe tener al menos 3 caracteres"),
-	email: z.string().email("El email no es válido").optional(),
-	phone: z
+	email: z
 		.string()
-		.min(10, "El teléfono debe tener al menos 10 caracteres")
-		.optional(),
+		.email({ message: "Debe ingresar un correo electrónico válido" })
+		.optional()
+		.or(z.literal("")),
+	phone: z.string().optional(),
 	specialty: z.string({ required_error: "La especialidad es requerida" }), // Select de especialidades
 });
 
-type AddDoctorFormValues = z.infer<typeof addDoctorForm>;
+interface Props {
+	specialties: Specialty[];
+}
 
-const specialities = [
-	{ id: 1, name: "Cardiología" },
-	{ id: 2, name: "Dermatología" },
-	{ id: 3, name: "Endocrinología" },
-	{ id: 4, name: "Gastroenterología" },
-	{ id: 5, name: "Ginecología" },
-	{ id: 6, name: "Hematología" },
-	{ id: 7, name: "Infectología" },
-	{ id: 8, name: "Medicina Interna" },
-	{ id: 9, name: "Nefrología" },
-	{ id: 10, name: "Neumología" },
-	{ id: 11, name: "Neurología" },
-	{ id: 12, name: "Oftalmología" },
-	{ id: 13, name: "Oncología" },
-	{ id: 14, name: "Otorrinolaringología" },
-	{ id: 15, name: "Pediatría" },
-	{ id: 16, name: "Psiquiatría" },
-	{ id: 17, name: "Reumatología" },
-	{ id: 18, name: "Traumatología" },
-	{ id: 19, name: "Urología" },
-];
+export type AddDoctorFormValues = z.infer<typeof addDoctorForm>;
 
-export const AddDoctorForm = () => {
+export const AddDoctorForm = ({ specialties }: Props) => {
+	const { toast } = useToast();
+	const closeDialog = useUIStore((state) => state.closeDialog);
+	const router = useRouter();
 	const form = useForm<AddDoctorFormValues>({
 		resolver: zodResolver(addDoctorForm),
 		defaultValues: {
+			idDoctor: "",
 			name: "",
 			email: "",
 			phone: "",
@@ -78,7 +72,22 @@ export const AddDoctorForm = () => {
 	});
 
 	const onSubmit = async (data: AddDoctorFormValues) => {
-		console.log({ data });
+		const response = await createDoctor(data);
+		if (!response.ok) {
+			toast({
+				variant: "destructive",
+				title: "Error",
+				description: response.message,
+			});
+		}
+		toast({
+			title: "Doctor creado",
+			description: "El doctor ha sido creado correctamente",
+			variant: "default",
+		});
+		form.reset();
+		closeDialog();
+		router.refresh();
 	};
 
 	return (
@@ -156,8 +165,8 @@ export const AddDoctorForm = () => {
 												)}
 											>
 												{field.value
-													? specialities.find(
-															(specialty) => specialty.name === field.value
+													? specialties.find(
+															(specialty) => specialty.id === field.value
 													  )?.name
 													: "Selecciona una especialidad"}
 												<ChevronsUpDown className='ml-2 h-4 w-4 shrink-0 opacity-50' />
@@ -170,13 +179,12 @@ export const AddDoctorForm = () => {
 											<CommandList>
 												<CommandEmpty>Especialidad no encontrado.</CommandEmpty>
 												<CommandGroup>
-													{specialities.map((specialty) => (
+													{specialties.map((specialty) => (
 														<CommandItem
 															key={specialty.id}
-															value={specialty.name}
+															value={specialty.id}
 															onSelect={() => {
-																form.setValue("specialty", specialty.name);
-																// TODO: Set the rest of the specialty data in their fields
+																form.setValue("specialty", specialty.id);
 															}}
 														>
 															<Check
