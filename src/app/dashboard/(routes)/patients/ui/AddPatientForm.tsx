@@ -1,5 +1,6 @@
 "use client";
 
+import { createPatient } from "@/actions";
 import { Button } from "@/components/ui/button";
 import {
 	Form,
@@ -10,33 +11,36 @@ import {
 	FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { useToast } from "@/hooks/use-toast";
+import { useUIStore } from "@/store";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
 const addPatientForm = z.object({
-	idPatient: z.string().refine((value) => /^\d{8}$/.test(value), {
-		message: "El número de DNI debe tener exactamente 8 dígitos",
-	}),
+	idPatient: z
+		.string({ required_error: "El número de DNI del paciente es obligatorio" })
+		.refine((value) => /^\d{8}$/.test(value), {
+			message: "El número de DNI debe tener exactamente 8 dígitos",
+		}),
 	name: z.string().min(3, "El nombre debe tener al menos 3 caracteres"),
-	email: z.string().optional(),
-	phone: z
+	email: z
 		.string()
-		// .min(9, "El teléfono debe tener al menos 9 caracteres")
-		.optional(),
-	medicalHistory: z
-		.string()
-		// .min(3, "La historia médica debe tener al menos 3 caracteres")
-		.optional(),
-	accountNumber: z
-		.string()
-		// .min(3, "La cuenta debe tener al menos 3 caracteres")
-		.optional(),
+		.email({ message: "Debe ingresar un correo electrónico válido" })
+		.optional()
+		.or(z.literal("")),
+	phone: z.string().optional(),
+	medicalHistory: z.string().optional(),
+	accountNumber: z.string().optional(),
 });
 
-type AddPatientFormValues = z.infer<typeof addPatientForm>;
+export type AddPatientFormValues = z.infer<typeof addPatientForm>;
 
 export const AddPatientForm = () => {
+	const { toast } = useToast();
+	const router = useRouter();
+	const closeDialog = useUIStore((state) => state.closeDialog);
 	const form = useForm<AddPatientFormValues>({
 		resolver: zodResolver(addPatientForm),
 		defaultValues: {
@@ -49,7 +53,20 @@ export const AddPatientForm = () => {
 		},
 	});
 	const onSubmit = async (data: AddPatientFormValues) => {
-		console.log({ data });
+		const response = await createPatient(data);
+		if (!response.ok) {
+			return toast({
+				variant: "destructive",
+				title: "Error",
+				description: response.message,
+			});
+		}
+		toast({
+			title: "Éxito",
+			description: "El paciente ha sido registrado correctamente",
+		});
+		closeDialog();
+		router.refresh();
 	};
 	return (
 		<Form {...form}>
