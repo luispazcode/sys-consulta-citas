@@ -32,6 +32,11 @@ import {
 	CommandList,
 } from "@/components/ui/command";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Doctor, Patient, Specialty } from "@/interfaces";
+import { useToast } from "@/hooks/use-toast";
+import { useRouter } from "next/navigation";
+import { createAppointment } from "@/actions";
+import { useUIStore } from "@/store";
 
 const addAppointmentSchema = z.object({
 	patient: z.string({
@@ -40,14 +45,13 @@ const addAppointmentSchema = z.object({
 	identityDocument: z
 		.string()
 		.length(8, { message: "El DNI debe tener 8 caracteres" }),
-	email: z.string().email({ message: "El email no es válido" }).optional(),
-	phone: z
+	email: z
 		.string()
-		.length(9, { message: "El teléfono debe tener 9 caracteres" })
-		.optional(),
-	medicalHistory: z.string().min(3, {
-		message: "El número de historia clínica debe tener al menos 3 caracteres",
-	}),
+		.email({ message: "Debe ingresar un correo electrónico válido" })
+		.optional()
+		.or(z.literal("")),
+	phone: z.string().optional(),
+	medicalHistory: z.string().optional(),
 	cupo: z.coerce
 		.number()
 		.int()
@@ -95,103 +99,25 @@ const addAppointmentSchema = z.object({
 		),
 });
 
-type AddAppointmentFormValues = z.infer<typeof addAppointmentSchema>;
+export type AddAppointmentFormValues = z.infer<typeof addAppointmentSchema>;
 
-const listPatients = [
-	{
-		idPatient: "75329228",
-		name: "Luis Paz",
-		email: "correo01@correo.com",
-		phone: "987654321",
-		medicalHistory: "123456",
-	},
-	{
-		idPatient: "75329229",
-		name: "Juan Perez",
-		email: "correo02@correo.com",
-		phone: "987654322",
-		medicalHistory: "123457",
-	},
-	{
-		idPatient: "75329230",
-		name: "Maria Lopez",
-		email: "correo03@correo.com",
-		phone: "987654323",
-		medicalHistory: "123458",
-	},
-	{
-		idPatient: "75329231",
-		name: "Pedro Ramirez",
-		email: "correo04@correo.com",
-		phone: "987654324",
-		medicalHistory: "123459",
-	},
-	{
-		idPatient: "75329232",
-		name: "Ana Garcia",
-		email: "correo07@correo.com",
-		phone: "987654325",
-		medicalHistory: "123460",
-	},
-	{
-		idPatient: "75329233",
-		name: "Carlos Sanchez",
-		email: "correo04@correo.com",
-		phone: "987654326",
-		medicalHistory: "123461",
-	},
-	{
-		idPatient: "75329234",
-		name: "Jose Rodriguez",
-		email: "correo04@correo.com",
-		phone: "987654327",
-		medicalHistory: "123462",
-	},
-	{
-		idPatient: "75329235",
-		name: "Rosa Flores",
-		email: "correo04@correo.com",
-		phone: "987654328",
-		medicalHistory: "123463",
-	},
-];
+interface Props {
+	patients: Patient[];
+	specialties: Specialty[];
+	doctors: Doctor[];
+}
 
-const specialities = [
-	{ id: 1, name: "Cardiología" },
-	{ id: 2, name: "Dermatología" },
-	{ id: 3, name: "Endocrinología" },
-	{ id: 4, name: "Gastroenterología" },
-	{ id: 5, name: "Ginecología" },
-	{ id: 6, name: "Hematología" },
-	{ id: 7, name: "Infectología" },
-	{ id: 8, name: "Medicina Interna" },
-	{ id: 9, name: "Nefrología" },
-	{ id: 10, name: "Neumología" },
-	{ id: 11, name: "Neurología" },
-	{ id: 12, name: "Oftalmología" },
-	{ id: 13, name: "Oncología" },
-	{ id: 14, name: "Otorrinolaringología" },
-	{ id: 15, name: "Pediatría" },
-	{ id: 16, name: "Psiquiatría" },
-	{ id: 17, name: "Reumatología" },
-	{ id: 18, name: "Traumatología" },
-	{ id: 19, name: "Urología" },
-];
-
-const doctors = [
-	{ id: "76565242", name: "Dr. Juan Perez", specialty: "Cardiología" },
-	{ id: "76565243", name: "Dr. Maria Lopez", specialty: "Dermatología" },
-	{ id: "76565244", name: "Dr. Pedro Ramirez", specialty: "Endocrinología" },
-	{ id: "76565245", name: "Dr. Ana Garcia", specialty: "Gastroenterología" },
-	{ id: "76565246", name: "Dr. Carlos Sanchez", specialty: "Ginecología" },
-	{ id: "76565247", name: "Dr. Jose Rodriguez", specialty: "Hematología" },
-	{ id: "76565248", name: "Dr. Rosa Flores", specialty: "Infectología" },
-	{ id: "76565249", name: "Dr. Luis Paz", specialty: "Medicina Interna" },
-];
-
-export const AddAppointmentForm = () => {
+export const AddAppointmentForm = ({
+	patients,
+	specialties,
+	doctors,
+}: Props) => {
+	const { toast } = useToast();
+	const closeDialog = useUIStore((state) => state.closeDialog);
+	const router = useRouter();
 	const [isCalendarOpen, setIsCalendarOpen] = useState<boolean>(false);
 	const [showPaymentCode, setShowPaymentCode] = useState(false);
+	const [selectedSpecialty, setSelectedSpecialty] = useState<string>("");
 	const form = useForm<AddAppointmentFormValues>({
 		resolver: zodResolver(addAppointmentSchema),
 		defaultValues: {
@@ -211,9 +137,25 @@ export const AddAppointmentForm = () => {
 			paymentCode: "",
 		},
 	});
-	const onSubmit = (data: AddAppointmentFormValues) => {
-		console.log({ data });
+	const onSubmit = async (data: AddAppointmentFormValues) => {
+		const response = await createAppointment(data);
+		if (!response.ok) {
+			return toast({
+				variant: "destructive",
+				title: "Error",
+				description: response.message,
+			});
+		}
+		toast({
+			title: "Éxito",
+			description: "La cita ha sido registrada correctamente",
+		});
+		closeDialog();
+		router.refresh();
 	};
+	const filteredDoctors = doctors.filter(
+		(doctor) => doctor.specialtyId === selectedSpecialty
+	);
 	return (
 		<Form {...form}>
 			<form onSubmit={form.handleSubmit(onSubmit)} className='space-y-6'>
@@ -239,9 +181,9 @@ export const AddAppointmentForm = () => {
 													)}
 												>
 													{field.value
-														? listPatients.find(
-																(patient) => patient.idPatient === field.value
-														  )?.name
+														? patients.find(
+																(patient) => patient.id === field.value
+														  )?.fullName
 														: "Selecciona un paciente"}
 													<ChevronsUpDown className='ml-2 h-4 w-4 shrink-0 opacity-50' />
 												</Button>
@@ -253,21 +195,18 @@ export const AddAppointmentForm = () => {
 												<CommandList>
 													<CommandEmpty>Paciente no encontrado.</CommandEmpty>
 													<CommandGroup>
-														{listPatients.map((patient) => (
+														{patients.map((patient) => (
 															<CommandItem
-																key={patient.idPatient}
-																value={patient.idPatient}
+																key={patient.id}
+																value={patient.id}
 																onSelect={() => {
-																	form.setValue("patient", patient.idPatient);
-																	form.setValue(
-																		"identityDocument",
-																		patient.idPatient
-																	);
-																	form.setValue("email", patient.email);
-																	form.setValue("phone", patient.phone);
+																	form.setValue("patient", patient.id);
+																	form.setValue("identityDocument", patient.id);
+																	form.setValue("email", patient.email || "");
+																	form.setValue("phone", patient.phone || "");
 																	form.setValue(
 																		"medicalHistory",
-																		patient.medicalHistory
+																		patient.medicalHistory || ""
 																	);
 																	// TODO: Set the rest of the patient data in their fields
 																}}
@@ -275,12 +214,12 @@ export const AddAppointmentForm = () => {
 																<Check
 																	className={cn(
 																		"mr-2 h-4 w-4",
-																		patient.name === field.value
+																		patient.fullName === field.value
 																			? "opacity-100"
 																			: "opacity-0"
 																	)}
 																/>
-																{patient.idPatient} - {patient.name}
+																{patient.id} - {patient.fullName}
 															</CommandItem>
 														))}
 													</CommandGroup>
@@ -449,8 +388,8 @@ export const AddAppointmentForm = () => {
 													)}
 												>
 													{field.value
-														? specialities.find(
-																(specialty) => specialty.name === field.value
+														? specialties.find(
+																(specialty) => specialty.id === field.value
 														  )?.name
 														: "Selecciona una especialidad"}
 													<ChevronsUpDown className='ml-2 h-4 w-4 shrink-0 opacity-50' />
@@ -465,19 +404,19 @@ export const AddAppointmentForm = () => {
 														Especialidad no encontrado.
 													</CommandEmpty>
 													<CommandGroup>
-														{specialities.map((specialty) => (
+														{specialties.map((specialty) => (
 															<CommandItem
 																key={specialty.id}
-																value={specialty.name}
+																value={specialty.id}
 																onSelect={() => {
-																	form.setValue("service", specialty.name);
-																	// TODO: Set the rest of the specialty data in their fields
+																	form.setValue("service", specialty.id);
+																	setSelectedSpecialty(specialty.id);
 																}}
 															>
 																<Check
 																	className={cn(
 																		"mr-2 h-4 w-4",
-																		specialty.name === field.value
+																		specialty.id === field.value
 																			? "opacity-100"
 																			: "opacity-0"
 																	)}
@@ -622,14 +561,9 @@ export const AddAppointmentForm = () => {
 													)}
 												>
 													{field.value
-														? doctors
-																.filter(
-																	(doctor) =>
-																		doctor.specialty ===
-																		form.getValues("service")
-																)
-																.find((doctor) => doctor.name === field.value)
-																?.name
+														? filteredDoctors.find(
+																(doctor) => doctor.id === field.value
+														  )?.fullName
 														: "Selecciona un doctor"}
 													<ChevronsUpDown className='ml-2 h-4 w-4 shrink-0 opacity-50' />
 												</Button>
@@ -641,31 +575,25 @@ export const AddAppointmentForm = () => {
 												<CommandList>
 													<CommandEmpty>Doctor no encontrado.</CommandEmpty>
 													<CommandGroup>
-														{doctors
-															.filter(
-																(doctor) =>
-																	doctor.specialty === form.getValues("service")
-															)
-															.map((doctor) => (
-																<CommandItem
-																	key={doctor.id}
-																	value={doctor.id}
-																	onSelect={() => {
-																		form.setValue("doctor", doctor.name);
-																		// TODO: Set the rest of the patient data in their fields
-																	}}
-																>
-																	<Check
-																		className={cn(
-																			"mr-2 h-4 w-4",
-																			doctor.name === field.value
-																				? "opacity-100"
-																				: "opacity-0"
-																		)}
-																	/>
-																	{doctor.id} - {doctor.name}
-																</CommandItem>
-															))}
+														{filteredDoctors.map((doctor) => (
+															<CommandItem
+																key={doctor.id}
+																value={doctor.id}
+																onSelect={() => {
+																	form.setValue("doctor", doctor.id);
+																}}
+															>
+																<Check
+																	className={cn(
+																		"mr-2 h-4 w-4",
+																		doctor.id === field.value
+																			? "opacity-100"
+																			: "opacity-0"
+																	)}
+																/>
+																{doctor.id} - {doctor.fullName}
+															</CommandItem>
+														))}
 													</CommandGroup>
 												</CommandList>
 											</Command>
