@@ -1,7 +1,7 @@
 export interface Doctor {
-	idDoctor: string;
-	name: string;
-	specialty: string;
-	email?: string | undefined;
-	phone?: string | undefined;
+	id: string;
+	fullName: string;
+	specialtyId: string;
+	email?: string | null;
+	phone?: string | null;
 }
