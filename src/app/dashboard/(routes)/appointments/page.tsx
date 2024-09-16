@@ -10,47 +10,41 @@ import {
 	TableRow,
 } from "@/components/ui/table";
 import { Label } from "@radix-ui/react-label";
-import { PlusIcon, SearchIcon } from "lucide-react";
+import { SearchIcon } from "lucide-react";
 import { DialogAddAppointment } from "./ui/DialogAddAppointment";
+import {
+	getAppointments,
+	getDoctors,
+	getPatients,
+	getSpecialties,
+} from "@/actions";
 
-const appointments = [
-	{
-		id: 1,
-		patientName: "Juan Pérez",
-		appointmentDate: "2023-07-15",
-		appointmentTime: "10:30",
-		doctorName: "Dra. María Rodríguez",
-		department: "Cardiología",
-	},
-	{
-		id: 2,
-		patientName: "María Gómez",
-		appointmentDate: "2023-07-15",
-		appointmentTime: "11:30",
-		doctorName: "Dr. Juan López",
-		department: "Neurología",
-	},
-	{
-		id: 3,
-		patientName: "Pedro Martínez",
-		appointmentDate: "2023-07-15",
-		appointmentTime: "12:30",
-		doctorName: "Dra. Ana Pérez",
-		department: "Pediatría",
-	},
-];
+export default async function AppointmenstPage() {
+	const { ok, data: appointments, message } = await getAppointments();
 
-export default function AppointmenstPage() {
+	const results = await Promise.allSettled([
+		getPatients(),
+		getSpecialties(),
+		getDoctors(),
+	]);
+
+	const patients =
+		results[0].status === "fulfilled" ? results[0].value.data : [];
+	const specialties =
+		results[1].status === "fulfilled" ? results[1].value.data : [];
+	const doctors =
+		results[2].status === "fulfilled" ? results[2].value.data : [];
+
 	return (
 		<section>
 			<Card className='w-full'>
 				<CardHeader className='flex flex-row items-center justify-between'>
 					<CardTitle className='text-2xl font-bold'>Gestión de citas</CardTitle>
-					{/* <Button className='bg-teal-600 hover:bg-teal-700 text-white'>
-						<PlusIcon className='w-4 h-4 mr-2' />
-						Nueva Cita
-					</Button> */}
-					<DialogAddAppointment />
+					<DialogAddAppointment
+						patients={patients}
+						specialties={specialties}
+						doctors={doctors}
+					/>
 					{/* DIalog */}
 				</CardHeader>
 				<CardContent>
@@ -71,36 +65,46 @@ export default function AppointmenstPage() {
 						<Table>
 							<TableHeader>
 								<TableRow>
+									<TableHead>Id cita</TableHead>
 									<TableHead>Paciente</TableHead>
-									<TableHead>Fecha</TableHead>
+									<TableHead>Fecha programada</TableHead>
 									<TableHead>Hora</TableHead>
 									<TableHead>Doctor</TableHead>
-									<TableHead>Departamento</TableHead>
+									<TableHead>Especialidad</TableHead>
 									<TableHead>Acciones</TableHead>
 								</TableRow>
 							</TableHeader>
 							<TableBody>
-								{appointments.map((appointment) => (
-									<TableRow key={appointment.id}>
-										<TableCell>{appointment.patientName}</TableCell>
-										<TableCell>{appointment.appointmentDate}</TableCell>
-										<TableCell>{appointment.appointmentTime}</TableCell>
-										<TableCell>{appointment.doctorName}</TableCell>
-										<TableCell>{appointment.department}</TableCell>
-										<TableCell>
-											<Button variant='outline' size='sm' className='mr-2'>
-												Editar
-											</Button>
-											<Button
-												variant='outline'
-												size='sm'
-												className='bg-red-100 text-red-600 hover:bg-red-200'
-											>
-												Eliminar
-											</Button>
-										</TableCell>
-									</TableRow>
-								))}
+								{!ok ? (
+									<p>{message}</p>
+								) : (
+									appointments.map((appointment) => (
+										<TableRow key={appointment.id}>
+											<TableCell>
+												{appointment.id.slice(-6).toUpperCase()}
+											</TableCell>
+											<TableCell>{appointment.patient.fullName}</TableCell>
+											<TableCell>
+												{appointment.scheduledDate.toLocaleDateString()}
+											</TableCell>
+											<TableCell>{appointment.scheduledTime}</TableCell>
+											<TableCell>{appointment.doctor.fullName}</TableCell>
+											<TableCell>{appointment.service.name}</TableCell>
+											<TableCell>
+												<Button variant='outline' size='sm' className='mr-2'>
+													Editar
+												</Button>
+												<Button
+													variant='outline'
+													size='sm'
+													className='bg-red-100 text-red-600 hover:bg-red-200'
+												>
+													Eliminar
+												</Button>
+											</TableCell>
+										</TableRow>
+									))
+								)}
 							</TableBody>
 						</Table>
 					</div>
