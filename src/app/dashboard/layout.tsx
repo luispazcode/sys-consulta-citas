@@ -12,7 +12,7 @@ export default function DashboardLayout({
 			<Sidebar />
 			{/* Main content */}
 			<main className='flex-1 p-8'>
-				<div>{children}</div>
+				<div className='h-full'>{children}</div>
 			</main>
 			<Toaster />
 		</div>
