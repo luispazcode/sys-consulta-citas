@@ -75,6 +75,7 @@ export const EditPatientForm = ({ patient }: Props) => {
 			description: message,
 		});
 		router.push("/dashboard/patients");
+		router.refresh();
 	};
 	return (
 		<Form {...form}>
