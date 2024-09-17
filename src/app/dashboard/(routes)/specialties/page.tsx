@@ -1,18 +1,10 @@
-import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import {
-	Table,
-	TableBody,
-	TableCell,
-	TableHead,
-	TableHeader,
-	TableRow,
-} from "@/components/ui/table";
 import { PlusIcon, SearchIcon } from "lucide-react";
 import { DialogAddSpecialty } from "./ui/DialogAddSpecialty";
 import { getSpecialties } from "@/actions";
+import { SpecialtyTable } from "./ui/SpecialtyTable";
 
 export default async function SpecialtiesPage() {
 	const { ok, data: specialties, message } = await getSpecialties();
@@ -38,39 +30,11 @@ export default async function SpecialtiesPage() {
 						</div>
 					</div>
 					<div className='overflow-x-auto'>
-						<Table>
-							<TableHeader>
-								<TableRow>
-									<TableHead>Nombre</TableHead>
-									<TableHead>Descripción</TableHead>
-									<TableHead>Acciones</TableHead>
-								</TableRow>
-							</TableHeader>
-							<TableBody>
-								{!specialties && !ok ? (
-									<p>{message}</p>
-								) : (
-									specialties.map((specialty) => (
-										<TableRow key={specialty.id}>
-											<TableCell>{specialty.name}</TableCell>
-											<TableCell>{specialty.description}</TableCell>
-											<TableCell>
-												<Button variant='outline' size='sm' className='mr-2'>
-													Editar
-												</Button>
-												<Button
-													variant='outline'
-													size='sm'
-													className='bg-red-100 text-red-600 hover:bg-red-200'
-												>
-													Eliminar
-												</Button>
-											</TableCell>
-										</TableRow>
-									))
-								)}
-							</TableBody>
-						</Table>
+						<SpecialtyTable
+							specialties={specialties}
+							ok={ok}
+							message={message}
+						/>
 					</div>
 				</CardContent>
 			</Card>
