@@ -1,15 +1,7 @@
-import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import {
-	Table,
-	TableBody,
-	TableCell,
-	TableHead,
-	TableHeader,
-	TableRow,
-} from "@/components/ui/table";
 import { DialogAddPatient } from "./ui/DialogAddPatient";
 import { getPatients } from "@/actions";
+import { PatientsTable } from "./ui/PatientsTable";
 
 export default async function PatientsPage() {
 	const { ok, data: patients, message } = await getPatients();
@@ -22,47 +14,11 @@ export default async function PatientsPage() {
 				</CardHeader>
 				<CardContent>
 					<div className='overflow-x-auto'>
-						<Table>
-							<TableHeader>
-								<TableRow>
-									<TableHead>Nombre</TableHead>
-									<TableHead>DNI</TableHead>
-									<TableHead>Historia</TableHead>
-									<TableHead>Cuenta</TableHead>
-									<TableHead>Teléfono</TableHead>
-									<TableHead>Email</TableHead>
-									<TableHead>Acciones</TableHead>
-								</TableRow>
-							</TableHeader>
-							<TableBody>
-								{!ok ? (
-									<p>{message}</p>
-								) : (
-									patients.map((patient) => (
-										<TableRow key={patient.id}>
-											<TableCell>{patient.fullName}</TableCell>
-											<TableCell>{patient.id}</TableCell>
-											<TableCell>{patient.medicalHistory}</TableCell>
-											<TableCell>{patient.accountNumber}</TableCell>
-											<TableCell>{patient.phone}</TableCell>
-											<TableCell>{patient.email}</TableCell>
-											<TableCell>
-												<Button variant='outline' size='sm' className='mr-2'>
-													Editar
-												</Button>
-												<Button
-													variant='outline'
-													size='sm'
-													className='bg-red-100 text-red-600 hover:bg-red-200'
-												>
-													Eliminar
-												</Button>
-											</TableCell>
-										</TableRow>
-									))
-								)}
-							</TableBody>
-						</Table>
+						<PatientsTable
+							response={ok}
+							patients={patients}
+							message={message}
+						/>
 					</div>
 				</CardContent>
 			</Card>
