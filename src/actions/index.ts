@@ -1,5 +1,7 @@
 export { createSpecialty } from "./specialties/create-specialty";
 export { getSpecialties } from "./specialties/get-specialties";
+export { getSpecialtyById } from "./specialties/get-specialty-by-id";
+export { editSpecialty } from "./specialties/edit-specialty";
 
 export { createDoctor } from "./doctors/create-doctor";
 export { getDoctors } from "./doctors/get-doctors";
