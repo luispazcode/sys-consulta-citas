@@ -1,14 +1,6 @@
-import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import {
-	Table,
-	TableBody,
-	TableCell,
-	TableHead,
-	TableHeader,
-	TableRow,
-} from "@/components/ui/table";
+
 import { Label } from "@radix-ui/react-label";
 import { SearchIcon } from "lucide-react";
 import { DialogAddAppointment } from "./ui/DialogAddAppointment";
@@ -18,9 +10,14 @@ import {
 	getPatients,
 	getSpecialties,
 } from "@/actions";
+import { AppointmentsTable } from "./ui/AppointmentsTable";
 
 export default async function AppointmenstPage() {
 	const { ok, data: appointments, message } = await getAppointments();
+
+	if (!ok) {
+		return <p>{message}</p>;
+	}
 
 	const results = await Promise.allSettled([
 		getPatients(),
@@ -45,7 +42,6 @@ export default async function AppointmenstPage() {
 						specialties={specialties}
 						doctors={doctors}
 					/>
-					{/* DIalog */}
 				</CardHeader>
 				<CardContent>
 					<div className='mb-4'>
@@ -62,51 +58,11 @@ export default async function AppointmenstPage() {
 						</div>
 					</div>
 					<div className='overflow-x-auto'>
-						<Table>
-							<TableHeader>
-								<TableRow>
-									<TableHead>Id cita</TableHead>
-									<TableHead>Paciente</TableHead>
-									<TableHead>Fecha programada</TableHead>
-									<TableHead>Hora</TableHead>
-									<TableHead>Doctor</TableHead>
-									<TableHead>Especialidad</TableHead>
-									<TableHead>Acciones</TableHead>
-								</TableRow>
-							</TableHeader>
-							<TableBody>
-								{!ok ? (
-									<p>{message}</p>
-								) : (
-									appointments.map((appointment) => (
-										<TableRow key={appointment.id}>
-											<TableCell>
-												{appointment.id.slice(-6).toUpperCase()}
-											</TableCell>
-											<TableCell>{appointment.patient.fullName}</TableCell>
-											<TableCell>
-												{appointment.scheduledDate.toLocaleDateString()}
-											</TableCell>
-											<TableCell>{appointment.scheduledTime}</TableCell>
-											<TableCell>{appointment.doctor.fullName}</TableCell>
-											<TableCell>{appointment.service.name}</TableCell>
-											<TableCell>
-												<Button variant='outline' size='sm' className='mr-2'>
-													Editar
-												</Button>
-												<Button
-													variant='outline'
-													size='sm'
-													className='bg-red-100 text-red-600 hover:bg-red-200'
-												>
-													Eliminar
-												</Button>
-											</TableCell>
-										</TableRow>
-									))
-								)}
-							</TableBody>
-						</Table>
+						<AppointmentsTable
+							result={ok}
+							appointments={appointments}
+							message={message}
+						/>
 					</div>
 				</CardContent>
 			</Card>
