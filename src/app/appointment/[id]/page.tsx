@@ -1,3 +1,4 @@
+import { getAppointmentById } from "@/actions";
 import { Button } from "@/components/ui/button";
 import {
 	Card,
@@ -11,9 +12,7 @@ import {
 	CalendarIcon,
 	ClockIcon,
 	FileTextIcon,
-	MailIcon,
 	MapPinIcon,
-	PhoneIcon,
 	UserIcon,
 } from "lucide-react";
 import Link from "next/link";
@@ -24,25 +23,16 @@ interface Props {
 	};
 }
 
-export default function AppointmentPage({ params }: Props) {
-	const appointment = {
-		id: "1",
-		patientId: "123456789",
-		patientName: "Juan Pérez",
-		appointmentDate: "2023-07-15",
-		appointmentTime: "10:30",
-		doctorName: "Dra. María Rodríguez",
-		specialty: "Cardiología",
-		officeNumber: "Consultorio 305",
-		contactPhone: "+1 (555) 987-6543",
-		contactEmail: "cardio@medicitas.com",
-		cupo: 15,
-		servicio: "Consulta Externa",
-		nroHistoria: 987654,
-		sis: true,
-		particular: false,
-		turno: "Mañana",
-	};
+export default async function AppointmentPage({ params }: Props) {
+	const {
+		ok,
+		data: appointment,
+		message,
+	} = await getAppointmentById(params.id);
+	if (!ok) {
+		return <p>{message}</p>;
+	}
+
 	return (
 		<main className='template-container py-10 w-full'>
 			<Card className='max-w-4xl mx-auto bg-white dark:bg-gray-800 shadow-xl rounded-lg overflow-hidden'>
@@ -61,8 +51,8 @@ export default function AppointmentPage({ params }: Props) {
 									Fecha y Hora
 								</h3>
 								<p className='text-gray-600 dark:text-gray-300'>
-									{appointment.appointmentDate} a las{" "}
-									{appointment.appointmentTime}
+									{appointment!.scheduledDate.toLocaleDateString()} a las{" "}
+									{appointment!.scheduledTime}
 								</p>
 							</div>
 						</div>
@@ -74,7 +64,7 @@ export default function AppointmentPage({ params }: Props) {
 									Doctor
 								</h3>
 								<p className='text-gray-600 dark:text-gray-300'>
-									{appointment.doctorName}
+									{appointment!.doctor.fullName}
 								</p>
 							</div>
 						</div>
@@ -86,7 +76,7 @@ export default function AppointmentPage({ params }: Props) {
 									Servicio | Especialidad
 								</h3>
 								<p className='text-gray-600 dark:text-gray-300'>
-									{appointment.specialty}
+									{appointment!.service.name}
 								</p>
 							</div>
 						</div>
@@ -98,7 +88,7 @@ export default function AppointmentPage({ params }: Props) {
 									Número de consultorio
 								</h3>
 								<p className='text-gray-600 dark:text-gray-300'>
-									{appointment.officeNumber}
+									{appointment!.officeNumber}
 								</p>
 							</div>
 						</div>
@@ -110,7 +100,7 @@ export default function AppointmentPage({ params }: Props) {
 									Cupo
 								</h3>
 								<p className='text-gray-600 dark:text-gray-300'>
-									{appointment.cupo}
+									{appointment!.cupo}
 								</p>
 							</div>
 						</div>
@@ -122,7 +112,8 @@ export default function AppointmentPage({ params }: Props) {
 									Nro. Historia
 								</h3>
 								<p className='text-gray-600 dark:text-gray-300'>
-									{appointment.nroHistoria}
+									{appointment?.patient.medicalHistory ||
+										"No tiene historia clínica"}
 								</p>
 							</div>
 						</div>
@@ -134,7 +125,7 @@ export default function AppointmentPage({ params }: Props) {
 									DNI del paciente
 								</h3>
 								<p className='text-gray-600 dark:text-gray-300'>
-									{appointment.patientId}
+									{appointment!.patient.id}
 								</p>
 							</div>
 						</div>
@@ -146,7 +137,7 @@ export default function AppointmentPage({ params }: Props) {
 									Nombres del paciente
 								</h3>
 								<p className='text-gray-600 dark:text-gray-300'>
-									{appointment.patientName}
+									{appointment!.patient.fullName}
 								</p>
 							</div>
 						</div>
@@ -158,7 +149,7 @@ export default function AppointmentPage({ params }: Props) {
 									Turno
 								</h3>
 								<p className='text-gray-600 dark:text-gray-300'>
-									{appointment.turno}
+									{appointment!.shift || "No tiene turno"}
 								</p>
 							</div>
 						</div>
@@ -170,7 +161,7 @@ export default function AppointmentPage({ params }: Props) {
 									SIS
 								</h3>
 								<p className='text-gray-600 dark:text-gray-300'>
-									{appointment.sis ? "Sí" : "No"}
+									{appointment?.insurance === "sis" ? "Sí" : "No"}
 								</p>
 							</div>
 						</div>
@@ -182,7 +173,7 @@ export default function AppointmentPage({ params }: Props) {
 									Particular
 								</h3>
 								<p className='text-gray-600 dark:text-gray-300'>
-									{appointment.particular ? "Sí" : "No"}
+									{appointment?.insurance === "particular" ? "Sí" : "No"}
 								</p>
 							</div>
 						</div>
