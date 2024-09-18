@@ -37,7 +37,6 @@ export const AddSpecialtyForm = () => {
 	});
 
 	const onSubmit = async (data: AddSpecialtyFormValues) => {
-		// console.log({ data });
 		const response = await createSpecialty(data);
 		if (!response.ok) {
 			toast({
