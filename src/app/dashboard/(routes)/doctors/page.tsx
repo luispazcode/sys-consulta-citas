@@ -7,7 +7,6 @@ export default async function DoctorsPage() {
 	const { ok, data } = await getSpecialties();
 	const specialties = !ok ? [] : data;
 	const { ok: resp, data: doctors, message } = await getDoctors();
-	console.log(doctors[0].specialty);
 	return (
 		<section>
 			<Card className='w-full'>
