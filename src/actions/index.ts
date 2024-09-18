@@ -15,3 +15,5 @@ export { editPatient } from "./patients/edit-patient";
 
 export { createAppointment } from "./appointments/create-appointment";
 export { getAppointments } from "./appointments/get-appointments";
+export { getAppointmentById } from "./appointments/get-appointment-by-id";
+export { editAppointment } from "./appointments/edit-appointment";
