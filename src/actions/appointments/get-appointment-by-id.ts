@@ -40,7 +40,6 @@ export const getAppointmentById = async (id: string) => {
 				data: null,
 			};
 		}
-		console.log({ appointment });
 		return {
 			ok: true,
 			data: appointment,
