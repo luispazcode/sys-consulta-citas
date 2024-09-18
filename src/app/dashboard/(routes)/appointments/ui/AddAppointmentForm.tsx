@@ -240,7 +240,7 @@ export const AddAppointmentForm = ({
 							render={({ field }) => (
 								<FormItem>
 									<FormLabel>Nro. Documento de Identidad</FormLabel>
-									<Input {...field} type='text' />
+									<Input {...field} type='text' disabled />
 									<FormMessage />
 								</FormItem>
 							)}
@@ -254,7 +254,7 @@ export const AddAppointmentForm = ({
 							render={({ field }) => (
 								<FormItem>
 									<FormLabel>Email</FormLabel>
-									<Input {...field} type='email' />
+									<Input {...field} type='email' disabled />
 									<FormMessage />
 								</FormItem>
 							)}
@@ -268,7 +268,7 @@ export const AddAppointmentForm = ({
 							render={({ field }) => (
 								<FormItem>
 									<FormLabel>Teléfono</FormLabel>
-									<Input {...field} type='text' />
+									<Input {...field} type='text' disabled />
 								</FormItem>
 							)}
 						/>
@@ -281,7 +281,7 @@ export const AddAppointmentForm = ({
 							render={({ field }) => (
 								<FormItem>
 									<FormLabel>Nro. Historia Clínica</FormLabel>
-									<Input {...field} type='text' />
+									<Input {...field} type='text' disabled />
 									<FormMessage />
 								</FormItem>
 							)}
@@ -343,6 +343,7 @@ export const AddAppointmentForm = ({
 						/>
 					</div>
 					{/* Hora de programación */}
+					{/* TODO: Establecer límites de hora */}
 					<div className='space-y-2'>
 						<FormField
 							control={form.control}
