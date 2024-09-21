@@ -18,11 +18,17 @@ export default function LoginPage() {
 				<CardContent className='p-6'>
 					<LoginForm />
 				</CardContent>
-				<CardFooter className='bg-gray-50 dark:bg-gray-700 p-6 text-center'>
-					<p className='text-sm text-gray-600 dark:text-gray-400'>
+				<CardFooter className='bg-gray-50 dark:bg-gray-700 p-6 flex flex-col gap-2 items-start'>
+					{/* <p className='text-sm text-gray-600 dark:text-gray-400'>
 						¿No tiene una cuenta?{" "}
 						<Link href='#' className='text-teal-600 hover:underline'>
 							Contacte al administrador
+						</Link>
+					</p> */}
+					<p className='text-sm text-gray-600 dark:text-gray-400'>
+						¿Quiere saber más de su cita?{" "}
+						<Link href='/' className='text-teal-600 hover:underline'>
+							Ingrese a nuestro portal web
 						</Link>
 					</p>
 				</CardFooter>
