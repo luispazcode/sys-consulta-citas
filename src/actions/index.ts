@@ -19,3 +19,6 @@ export { getAppointmentById } from "./appointments/get-appointment-by-id";
 export { editAppointment } from "./appointments/edit-appointment";
 
 export { getAppointmentsByPatientId } from "./medical-consultation/get-appointment-by-patient-id";
+
+export { authenticate } from "./auth/authenticate";
+export { logout } from "./auth/logout";
