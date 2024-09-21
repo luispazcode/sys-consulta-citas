@@ -71,7 +71,6 @@ export const authConfig: NextAuthConfig = {
 					return null;
 				}
 				const { username, password } = parsedCredentials.data;
-				console.log(username, password);
 
 				// Buscar el usuario en la base de datos
 				const user = await prisma.user.findUnique({
@@ -86,7 +85,6 @@ export const authConfig: NextAuthConfig = {
 
 				// Regresar el usuario sin el password
 				const { password: _, ...rest } = user;
-				console.log({ rest });
 				return rest;
 			},
 		}),
