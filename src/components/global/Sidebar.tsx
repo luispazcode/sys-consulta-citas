@@ -1,8 +1,17 @@
 "use client";
+import { logout } from "@/actions";
 import { Button } from "@/components/ui/button";
-import { BuildingIcon, CalendarIcon, LogOutIcon, UserIcon } from "lucide-react";
+import {
+	BuildingIcon,
+	CalendarIcon,
+	Loader2,
+	LogOutIcon,
+	UserIcon,
+} from "lucide-react";
+import { useSession } from "next-auth/react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useState } from "react";
 
 const routes = [
 	{
@@ -29,7 +38,16 @@ const routes = [
 
 export const Sidebar = () => {
 	const pathname = usePathname();
+	const [isSigningOut, setIsSigningOut] = useState(false);
 
+	const handleLogout = async () => {
+		setIsSigningOut(true);
+		await logout();
+		setIsSigningOut(false);
+		// window.location.replace("/auth/login");
+	};
+
+	const { data: session } = useSession();
 	return (
 		<aside className='w-64 bg-white dark:bg-gray-800 shadow-md flex flex-col justify-between'>
 			<div className='p-4'>
@@ -38,6 +56,19 @@ export const Sidebar = () => {
 					<span className='font-bold text-xl text-gray-900 dark:text-white'>
 						Dashboard
 					</span>
+				</div>
+				<div className='py-4'>
+					<div className='flex flex-col items-center gap-2 mb-6'>
+						<div className='bg-teal-600 h-20 w-20 rounded-full flex items-center justify-center mx-auto p-2'>
+							<UserIcon className='h-12 w-12 text-white' />
+						</div>
+						<p>
+							<span className='font-semibold'>User:</span> {session?.user?.name}
+						</p>
+						<p>
+							<span className='font-semibold'>Role:</span> {session?.user?.role}
+						</p>
+					</div>
 				</div>
 				<nav className='space-y-2'>
 					{routes.map((route) => (
@@ -56,12 +87,24 @@ export const Sidebar = () => {
 				</nav>
 			</div>
 			<div className='p-4'>
-				<Link href='/auth/login' className='w-full'>
-					<Button variant='outline' className='w-full justify-start'>
-						<LogOutIcon className='mr-2 h-4 w-4' />
-						Cerrar Sesión
-					</Button>
-				</Link>
+				<Button
+					variant='outline'
+					className='w-full justify-start'
+					onClick={handleLogout}
+					disabled={isSigningOut}
+				>
+					{isSigningOut && session?.user ? (
+						<>
+							<Loader2 className='mr-2 h-4 w-4 animate-spin' />
+							Cerrando sesión
+						</>
+					) : (
+						<>
+							<LogOutIcon className='mr-2 h-4 w-4' />
+							Cerrar Sesión
+						</>
+					)}
+				</Button>
 			</div>
 		</aside>
 	);
