@@ -67,16 +67,10 @@ const editAppointmentSchema = z.object({
 	scheduledTime: z.string().refine(
 		(time) => {
 			const [hours, minutes] = time.split(":").map(Number);
-			return (
-				(hours === 8 && minutes >= 0) ||
-				hours === 9 ||
-				hours === 10 ||
-				hours === 11 ||
-				(hours === 12 && minutes === 0)
-			);
+			return (hours >= 7 && hours <= 17) || (hours === 17 && minutes === 0);
 		},
 		{
-			message: "La hora debe estar entre las 8:00 AM y las 12:00 PM.",
+			message: "La hora debe estar entre las 7:00 AM y las 5:00 PM.",
 		}
 	),
 	officeNumber: z.string().optional(),
@@ -359,9 +353,8 @@ export const EditAppointmentForm = ({
 											<Input
 												type='time'
 												placeholder='Selecciona la hora'
-												min='08:00'
-												max='18:00'
-												step='300'
+												min='07:00'
+												max='17:00'
 												className='justify-start'
 												{...field}
 											/>
