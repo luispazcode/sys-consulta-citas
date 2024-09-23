@@ -56,7 +56,7 @@ export const AppointmentsTable = ({
 										Editar
 									</Link>
 								</Button>
-								<Button
+								{/* <Button
 									variant='outline'
 									size='sm'
 									className='bg-red-100 text-red-600 hover:bg-red-200'
@@ -67,7 +67,7 @@ export const AppointmentsTable = ({
 									}
 								>
 									Eliminar
-								</Button>
+								</Button> */}
 							</TableCell>
 						</TableRow>
 					))

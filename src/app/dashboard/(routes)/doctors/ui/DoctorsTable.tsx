@@ -47,7 +47,7 @@ export const DoctorsTable = ({ response, doctors, message }: Props) => {
 										Editar
 									</Link>
 								</Button>
-								<Button
+								{/* <Button
 									variant='outline'
 									size='sm'
 									className='bg-red-100 text-red-600 hover:bg-red-200'
@@ -57,7 +57,7 @@ export const DoctorsTable = ({ response, doctors, message }: Props) => {
 									}
 								>
 									Eliminar
-								</Button>
+								</Button> */}
 							</TableCell>
 						</TableRow>
 					))
