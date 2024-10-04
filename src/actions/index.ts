@@ -17,7 +17,7 @@ export { getPatients } from "./patients/get-patients";
 export { getPatientById } from "./patients/get-patient-by-id";
 export { editPatient } from "./patients/edit-patient";
 export { deletePatient } from "./patients/delete-patient";
-export { verifyAppointments } from "./patients/verifyAppointments";
+export { verifyAppointments } from "./patients/verify-patient-appointments";
 
 export { createAppointment } from "./appointments/create-appointment";
 export { getAppointments } from "./appointments/get-appointments";
