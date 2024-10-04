@@ -11,6 +11,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { AppointmentTableItem } from "@/interfaces";
 import Link from "next/link";
+import { DialogDeleteAppointment } from "./DialogDeleteAppointment";
 
 interface Props {
 	result: boolean;
@@ -56,18 +57,7 @@ export const AppointmentsTable = ({
 										Editar
 									</Link>
 								</Button>
-								{/* <Button
-									variant='outline'
-									size='sm'
-									className='bg-red-100 text-red-600 hover:bg-red-200'
-									onClick={
-										() =>
-											console.log(`Eliminar cita con el id ${appointment.id}`)
-										// Server action to delete appointment
-									}
-								>
-									Eliminar
-								</Button> */}
+								<DialogDeleteAppointment appointmentId={appointment.id} />
 							</TableCell>
 						</TableRow>
 					))
