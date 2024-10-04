@@ -11,6 +11,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Specialty } from "@/interfaces";
 import Link from "next/link";
+import { DialogDeleteSpecialty } from "./DialogDeleteSpecialty";
 
 export interface Props {
 	specialties: Specialty[];
@@ -42,20 +43,7 @@ export const SpecialtyTable = ({ specialties, ok, message = "" }: Props) => {
 										Editar
 									</Link>
 								</Button>
-								{/* <Button
-									variant='outline'
-									size='sm'
-									className='bg-red-100 text-red-600 hover:bg-red-200'
-									onClick={
-										() =>
-											console.log(
-												`Eliminar especialidad con el id ${specialty.id}`
-											)
-										// Server action to delete specialty
-									}
-								>
-									Eliminar
-								</Button> */}
+								<DialogDeleteSpecialty specialtyId={specialty.id} />
 							</TableCell>
 						</TableRow>
 					))
