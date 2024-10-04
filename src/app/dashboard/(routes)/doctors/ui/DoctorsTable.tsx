@@ -12,6 +12,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { DoctorWithSpecialty } from "@/interfaces";
 import Link from "next/link";
+import { DialogDeleteDoctor } from "./DialogDeleteDoctor";
 
 interface Props {
 	response: boolean;
@@ -47,17 +48,7 @@ export const DoctorsTable = ({ response, doctors, message }: Props) => {
 										Editar
 									</Link>
 								</Button>
-								{/* <Button
-									variant='outline'
-									size='sm'
-									className='bg-red-100 text-red-600 hover:bg-red-200'
-									onClick={
-										() => console.log(`Eliminar doctor con el id ${doctor.id}`)
-										// Server action to delete doctor
-									}
-								>
-									Eliminar
-								</Button> */}
+								<DialogDeleteDoctor doctorId={doctor.id} />
 							</TableCell>
 						</TableRow>
 					))
