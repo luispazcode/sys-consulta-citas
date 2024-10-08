@@ -8,13 +8,29 @@ export async function GET() {
 		if (users.length > 0) {
 			await prisma.user.deleteMany();
 		}
-		await prisma.user.create({
-			data: {
-				name: "Admin",
-				username: "admin",
-				password: bcryptjs.hashSync("admin123456", 10),
-				role: "ADMIN",
-			},
+		// await prisma.user.create({
+		// 	data: {
+		// 		name: "Admin",
+		// 		username: "admin",
+		// 		password: bcryptjs.hashSync("123456admin", 10),
+		// 		role: "ADMIN",
+		// 	},
+		// });
+		await prisma.user.createMany({
+			data: [
+				{
+					name: "Margarita",
+					username: "margarita",
+					password: bcryptjs.hashSync("123456margarita", 10),
+					role: "ADMIN",
+				},
+				{
+					name: "Sarita",
+					username: "sarita",
+					password: bcryptjs.hashSync("123456sarita", 10),
+					role: "ADMIN",
+				},
+			],
 		});
 		return NextResponse.json(
 			{ message: "User created successfully" },
