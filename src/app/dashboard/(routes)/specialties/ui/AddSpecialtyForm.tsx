@@ -53,7 +53,6 @@ export const AddSpecialtyForm = () => {
 		});
 		closeDialog();
 		router.refresh();
-		router.replace("/dashboard/specialties");
 	};
 
 	return (
