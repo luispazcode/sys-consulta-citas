@@ -37,23 +37,33 @@ export const AddSpecialtyForm = () => {
 	});
 
 	const onSubmit = async (data: AddSpecialtyFormValues) => {
-		const response = await createSpecialty(data);
-		if (!response.ok) {
+		try {
+			// const response = await createSpecialty(data);
+			await createSpecialty(data);
+			// if (!response.ok) {
+			// 	toast({
+			// 		variant: "destructive",
+			// 		title: "Error",
+			// 		description: response.message,
+			// 	});
+			// }
+			toast({
+				title: "Especialidad creada",
+				description: "La especialidad ha sido creada correctamente",
+				variant: "default",
+			});
+			form.reset();
+			closeDialog();
+			console.log("Creado correctamente, a punto de redirigir ...");
+			router.push("/dashboard/specialties");
+		} catch (error) {
 			toast({
 				variant: "destructive",
 				title: "Error",
-				description: response.message,
+				description: `Ocurrió un error, ${error}`,
 			});
+			console.error(error);
 		}
-		toast({
-			title: "Especialidad creada",
-			description: "La especialidad ha sido creada correctamente",
-			variant: "default",
-		});
-		form.reset();
-		closeDialog();
-		console.log("Creado correctamente, a punto de redirigir ...");
-		router.push("/dashboard/specialties");
 	};
 
 	return (
