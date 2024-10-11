@@ -52,6 +52,7 @@ export const AddSpecialtyForm = () => {
 		});
 		form.reset();
 		closeDialog();
+		console.log("Creado correctamente, a punto de redirigir ...");
 		router.push("/dashboard/specialties");
 	};
 
