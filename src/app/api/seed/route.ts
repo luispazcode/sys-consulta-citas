@@ -9,14 +9,7 @@ export async function GET() {
 		if (users.length > 0) {
 			await prisma.user.deleteMany();
 		}
-		// await prisma.user.create({
-		// 	data: {
-		// 		name: "Admin",
-		// 		username: "admin",
-		// 		password: bcryptjs.hashSync("123456admin", 10),
-		// 		role: "ADMIN",
-		// 	},
-		// });
+
 		await prisma.user.createMany({
 			data: [
 				{
@@ -33,7 +26,6 @@ export async function GET() {
 				},
 			],
 		});
-		revalidatePath("/");
 		return NextResponse.json(
 			{ message: "User created successfully" },
 			{ status: 200 }
