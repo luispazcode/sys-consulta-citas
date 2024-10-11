@@ -6,13 +6,9 @@ import bcryptjs from "bcryptjs";
 
 const protectedRoutes = [
 	"/dashboard/appointments",
-	"/dashboard/appointments/edit/:id",
 	"/dashboard/doctors",
-	"/dashboard/doctors/edit/:id",
 	"/dashboard/patients",
-	"/dashboard/patients/edit/:id",
 	"/dashboard/specialties",
-	"/dashboard/specialties/edit/:id",
 ];
 
 const authenticationRoutes = ["/auth/login"];
