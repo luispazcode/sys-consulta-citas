@@ -52,7 +52,7 @@ export const DialogDeleteSpecialty = ({ specialtyId }: Props) => {
 			<AlertDialogTitle></AlertDialogTitle>
 			<AlertDialogContent>
 				<AlertDialogHeader>
-					¿Estás seguro de eliminar este Doctor?
+					¿Estás seguro de eliminar esta especialidad?
 				</AlertDialogHeader>
 				<AlertDialogDescription className='flex flex-col gap-2'>
 					<span>{message}</span>
