@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { DialogAddDoctor } from "./ui/DialogAddDoctor";
 import { getDoctors, getSpecialties } from "@/actions";
