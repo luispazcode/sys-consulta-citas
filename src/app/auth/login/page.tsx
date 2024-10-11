@@ -22,7 +22,7 @@ export default function LoginPage() {
 					<p className='text-sm text-gray-600 dark:text-gray-400'>
 						¿Quiere saber más de su cita?{" "}
 						<Link href='/' className='text-teal-600 hover:underline'>
-							Ingrese a nuestro portal web
+							Ingrese a nuestro portal web.
 						</Link>
 					</p>
 				</CardFooter>
