@@ -52,7 +52,7 @@ export const AddSpecialtyForm = () => {
 		});
 		form.reset();
 		closeDialog();
-		router.refresh();
+		router.push("/dashboard/specialties");
 	};
 
 	return (
